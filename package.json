@@ -1,0 +1,31 @@
+{
+  "name": "cli",
+  "version": "0.0.0",
+  "description": "cli for imagerjs",
+  "bin": {
+    "imager": "./bin/imager-cli"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/imagerjs/cli.git"
+  },
+  "keywords": [
+
+  ],
+  "author": "Madhusudhan <madhums8@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/imagerjs/cli/issues"
+  },
+  "homepage": "https://github.com/imagerjs/cli",
+  "dependencies": {
+    "imager": "git://github.com/imagerjs/imager.git#generators",
+    "commander": "2.3.0"
+  },
+  "devDependencies": {
+
+  }
+}

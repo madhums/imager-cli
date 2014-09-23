@@ -11,10 +11,16 @@
  */
 
 var program = require('commander');
-var imager = require('imager');
+var Imager = require('imager');
+var fs = require('fs');
 var co = require('co');
 var pkg = require('../package.json');
-var infoFilePath = process.env.HOME + '/.imager.json';
+var configFile = process.env.HOME + '/.imager.json';
+var stringify = JSON.stringify;
+
+function providers (val) {
+  return ~['amazon', 'rackspace'].indexOf(val);
+}
 
 program
   .version(pkg.version)
@@ -22,7 +28,7 @@ program
   .option('-s, --secret <secret>', 'Secret')
   .option('-c, --container <container>', 'Container')
   .option('-r, --region <region>', 'Region')
-  .option('-p, --provider <provider>', 'Provider (one of amazon, rackspace)');
+  .option('-p, --provider <provider>', 'Provider (one of amazon, rackspace)', providers);
 
 program
   .command('upload <path>')
@@ -30,7 +36,7 @@ program
   .action(co(upload));
 
 program
-  .command('setup <key> <secret> <container> <region> <provider>')
+  .command('setup <key> <secret> <container> <provider> [region]')
   .description('Stores the imager config in ~/.imager.json')
   .action(co(storeInfo));
 
@@ -45,9 +51,20 @@ program
  */
 
 function *upload (filepath) {
-  var key = program.key;
-  var secret = program.secret;
-  var container = program.container;
+  var _filepath = process.cwd() + '/' + filepath;
+  var config = yield read(configFile);
+  var uploaded;
+  var imager;
+
+  config = JSON.parse(config);
+  config.key = program.key || config.key;
+  config.keyId = program.secret || config.secret;
+  config.container = program.container || config.container;
+  config.region = program.region || config.region;
+  config.provider = program.provider || config.provider;
+  imager = new Imager(config);
+  uploaded = yield _upload(_filepath, imager);
+  console.log('Uploaded ' + stringify(uploaded));
 }
 
 /**
@@ -59,6 +76,56 @@ function *upload (filepath) {
  * @api private
  */
 
-function *storeInfo (key, secret, container, region, provider) {
+function *storeInfo (key, secret, container, provider, region) {
+  var config = stringify({
+    key: key,
+    secret: secret,
+    container: container,
+    region: region,
+    provider: provider
+  });
+  yield write(config);
+  console.log('Wrote ' + config + ' to "' + configFile + '"\n');
+}
 
+/**
+ * write
+ *
+ * @param {Object} config
+ * @return {Function}
+ * @api private
+ */
+
+function write (config) {
+  return function (fn) {
+    fs.writeFile(configFile, config, fn);
+  };
+}
+
+/**
+ * read
+ *
+ * @param {String} file
+ * @return {Function}
+ * @api private
+ */
+
+function read (file) {
+  return function (fn) {
+    fs.readFile(file, 'utf-8', fn);
+  }
+}
+
+/**
+ * upload
+ *
+ * @param {String} file
+ * @return {Function}
+ * @api private
+ */
+
+function _upload (file, imager) {
+  return function (fn) {
+    imager.upload(file, fn);
+  }
 }

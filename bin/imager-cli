@@ -2,7 +2,7 @@
 
 /*!
  * imager-cli
- * Copyright(c) 2014 Madhusudhan <madhums8@gmail.com>
+ * Copyright(c) 2014 Madhusudhan <me@madhums.me>
  * MIT Licensed
  */
 
@@ -10,3 +10,26 @@
  * Module dependencies.
  */
 
+var program = require('commander');
+var imager = require('imager');
+var pkg = require('../package.json');
+var infoFilePath = process.env.HOME + '/.imager.json';
+
+program
+  .version(pkg.version)
+  .option('-k, --key <key>', 'AWS Key')
+  .option('-s, --secret <secret>', 'AWS Secret')
+  .option('-c, --container <container>', 'AWS Container');
+
+program
+  .command('upload <path>')
+  .description('Upload the image at <path> to s3')
+  .action(co(upload));
+
+program
+  .command('setup [options]')
+  .description('Stores the imager config in ~/.imager.json')
+  .action(co(storeInfo));
+
+program
+  .parse(process.argv);

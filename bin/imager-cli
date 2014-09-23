@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env nodeh
 
 /*!
  * imager-cli
@@ -12,14 +12,17 @@
 
 var program = require('commander');
 var imager = require('imager');
+var co = require('co');
 var pkg = require('../package.json');
 var infoFilePath = process.env.HOME + '/.imager.json';
 
 program
   .version(pkg.version)
-  .option('-k, --key <key>', 'AWS Key')
-  .option('-s, --secret <secret>', 'AWS Secret')
-  .option('-c, --container <container>', 'AWS Container');
+  .option('-k, --key <key>', 'Key')
+  .option('-s, --secret <secret>', 'Secret')
+  .option('-c, --container <container>', 'Container')
+  .option('-r, --region <region>', 'Region')
+  .option('-p, --provider <provider>', 'Provider (one of amazon, rackspace)');
 
 program
   .command('upload <path>')
@@ -27,9 +30,35 @@ program
   .action(co(upload));
 
 program
-  .command('setup [options]')
+  .command('setup <key> <secret> <container> <region> <provider>')
   .description('Stores the imager config in ~/.imager.json')
   .action(co(storeInfo));
 
 program
   .parse(process.argv);
+
+/**
+ * upload
+ *
+ * @param {String} filepath
+ * @api private
+ */
+
+function *upload (filepath) {
+  var key = program.key;
+  var secret = program.secret;
+  var container = program.container;
+}
+
+/**
+ * storeInfo
+ *
+ * @param {String} key
+ * @param {String} secret
+ * @param {String} container
+ * @api private
+ */
+
+function *storeInfo (key, secret, container, region, provider) {
+
+}

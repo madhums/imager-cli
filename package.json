@@ -23,7 +23,8 @@
   "homepage": "https://github.com/imagerjs/cli",
   "dependencies": {
     "imager": "git://github.com/imagerjs/imager.git#generators",
-    "commander": "2.3.0"
+    "commander": "2.3.0",
+    "co": "3.1.0"
   },
   "devDependencies": {
 
